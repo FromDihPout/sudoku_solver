@@ -4,7 +4,7 @@ def nextOpenSpot(grid):
             if grid[i][j] == 0:
                 return i, j
     return -1, -1
-    
+
 def checkWin(grid):
     for i in range(len(grid)):
         for j in range(len(grid)):
@@ -43,4 +43,16 @@ def validMove(grid, r, c, num):
                     if num == grid[i][j]:
                         return False
             return True
+    return False
+
+def solve(grid):
+    r, c = nextOpenSpot(grid)
+    if r == -1:
+        return True
+    for num in range(1, 10):
+        if validMove(grid, r, c, num):
+            grid[r][c] = num
+            if solve(grid):
+                return True
+            grid[r][c] = 0
     return False
