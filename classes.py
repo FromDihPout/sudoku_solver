@@ -14,6 +14,7 @@ class Grid:
     EASY = (30, 40)
     MEDIUM = (40, 50)
     HARD = (50, 60)
+    SOLVE_DELAY = 50
 
     def __init__(self, pos, gridWidth, difficulty, surface):
         self.pos = pos
@@ -44,7 +45,7 @@ class Grid:
             possibilities.remove(value)
 
         # fill in board based on first row
-        backtrack.solve(grid)
+        backtrack.randomSolve(grid)
 
         if difficulty == 'easy':
             removeRange = Grid.EASY
@@ -132,21 +133,27 @@ class Grid:
             for col in range(9):
                 # check for same number in row
                 for i in range(9):
-                    if self.grid[row][col] == self.grid[row][i] and i != col:
+                    if self.grid[row][col] == self.grid[row][i] and i != col and self.grid[row][col] != 0:
                         self.tiles[row][i].wrong = True
-                        self.tiles[row][col]. wrong = True
+                        self.tiles[row][col].wrong = True
                 # check for same number in column
                 for i in range(9):
-                    if self.grid[row][col] == self.grid[i][col] and i != row:
+                    if self.grid[row][col] == self.grid[i][col] and i != row and self.grid[row][col] != 0:
                         self.tiles[i][col].wrong = True
-                        self.tiles[row][col]. wrong = True
+                        self.tiles[row][col].wrong = True
                 # check for same number in sector
                 rSector, cSector = 3* (row//3), 3 * (col//3)
                 for i in range(rSector, rSector+3):
                     for j in range(cSector, cSector+3):
-                        if self.grid[row][col] == self.grid[i][j] and row != i and col != j:
+                        if self.grid[row][col] == self.grid[i][j] and row != i and col != j and self.grid[row][col] != 0:
                             self.tiles[i][j].wrong = True
                             self.tiles[row][col].wrong = True
+
+        for i in range(9):
+            for j in range(9):
+                print(self.tiles[i][j].wrong, end = '')
+            print('')
+        print('')
 
     def updateTile(self, value, row, col, clicked):
         if not self.tiles[row][col].given:
@@ -170,6 +177,32 @@ class Grid:
         self.tileClicked = True
         # click current tile
         self.tiles[row][col].drawSquare(True, self.pos, self.lineWidth)
+
+    def solve(self, clock):
+        r, c = backtrack.nextOpenSpot(self.grid)
+        if r == -1:
+            return True
+        for num in range(1, 10):
+            if backtrack.validMove(self.grid, r, c, num):
+                # draw in new value
+                self.grid[r][c] = num
+                self.tiles[r][c].changeValue(num)
+                self.tiles[r][c].drawSquare(False, self.pos, self.lineWidth)
+                clock.displayTime(time.time())
+                pygame.display.update()
+                pygame.time.delay(Grid.SOLVE_DELAY)
+
+                if self.solve(clock):
+                    return True
+
+                # delete incorrect value
+                self.grid[r][c] = 0
+                self.tiles[r][c].changeValue(0)
+                self.tiles[r][c].drawSquare(False, self.pos, self.lineWidth)
+                clock.displayTime(time.time())
+                pygame.display.update()
+                pygame.time.delay(Grid.SOLVE_DELAY)
+        return False
 
 
 class Tile:

@@ -1,3 +1,5 @@
+from random import randrange
+
 def nextOpenSpot(grid):
     for i in range(9):
         for j in range(9):
@@ -50,6 +52,21 @@ def solve(grid):
     if r == -1:
         return True
     for num in range(1, 10):
+        if validMove(grid, r, c, num):
+            grid[r][c] = num
+            if solve(grid):
+                return True
+            grid[r][c] = 0
+    return False
+
+def randomSolve(grid):
+    r, c = nextOpenSpot(grid)
+    if r == -1:
+        return True
+    values = [i for i in range(1, 10)]
+    length = len(values)
+    while length > 0:
+        num = values[randrange(length)]
         if validMove(grid, r, c, num):
             grid[r][c] = num
             if solve(grid):

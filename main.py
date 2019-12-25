@@ -59,29 +59,6 @@ clearButton = Button((BUTTON_START_X, BUTTON_START_Y + 4*LARGE_HEIGHT + SMALL_HE
 clock = Clock((BUTTON_START_X, BUTTON_START_Y - 75), time.time(), win, WIN_COLOUR,
             WIN_DIMENSIONS[0] - BUTTON_START_X, 100)
 
-
-def solve(grid):
-    r, c = backtrack.nextOpenSpot(grid.grid)
-    if r == -1:
-        return True
-    for num in range(1, 10):
-        if backtrack.validMove(grid.grid, r, c, num):
-            grid.grid[r][c] = num
-            grid.tiles[r][c].changeValue(num)
-            grid.tiles[r][c].drawSquare(False, grid.pos, grid.lineWidth)
-            pygame.display.update()
-            pygame.time.delay(50)
-
-            if solve(grid):
-                return True
-
-            grid.grid[r][c] = 0
-            grid.tiles[r][c].changeValue(0)
-            grid.tiles[r][c].drawSquare(False, grid.pos, grid.lineWidth)
-            pygame.display.update()
-            pygame.time.delay(50)
-    return False
-
 run = True
 currTime = ''
 while run:
@@ -165,7 +142,7 @@ while run:
             grid.drawTiles()
             grid.checkMove = checkMoveButton.clicked
         elif solveButton.click(pos):
-            solve(grid)
+            grid.solve(clock)
         elif clearButton.click(pos):
             grid.clear()
 
